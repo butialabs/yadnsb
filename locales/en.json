@@ -15,6 +15,11 @@
         "testInterval": "Interval between requests (seconds)",
         "testCount": "Number of tests per provider",
         "protocolTypes": "DNS Protocol Types",
+        "queryType": "Query Type for DoH/DoT/DoQ",
+        "queryTypeA": "A Records (IPv4 addresses)",
+        "queryTypeAAAA": "AAAA Records (IPv6 addresses)",
+        "queryTypeBoth": "Both A and AAAA Records",
+        "queryTypeHelp": "This setting applies to DoH, DoT, and DoQ protocols. IPv4/IPv6 protocol selections above will always use their respective record types.",
         "startTest": "Start Benchmark",
         "stopTest": "Stop Test"
     },

@@ -15,6 +15,11 @@
         "testInterval": "Интервал между запросами (секунды)",
         "testCount": "Количество тестов на провайдера",
         "protocolTypes": "Типы DNS-протоколов",
+        "queryType": "Тип запроса для DoH/DoT/DoQ",
+        "queryTypeA": "A-записи (IPv4 адреса)",
+        "queryTypeAAAA": "AAAA-записи (IPv6 адреса)",
+        "queryTypeBoth": "И A, и AAAA записи",
+        "queryTypeHelp": "Эта настройка применяется к протоколам DoH, DoT и DoQ. Выбор протоколов IPv4/IPv6 выше всегда будет использовать соответствующие типы записей.",
         "startTest": "Начать тестирование",
         "stopTest": "Остановить тест"
     },

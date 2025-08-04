@@ -141,6 +141,33 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-search me-2"></i>
+                                <span data-i18n="configuration.queryType">Query Type for DoH/DoT/DoQ</span>
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="queryType" id="queryTypeA" value="A" checked>
+                                <label class="form-check-label" for="queryTypeA">
+                                    <span data-i18n="configuration.queryTypeA">A Records (IPv4 addresses)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="queryType" id="queryTypeAAAA" value="AAAA">
+                                <label class="form-check-label" for="queryTypeAAAA">
+                                    <span data-i18n="configuration.queryTypeAAAA">AAAA Records (IPv6 addresses)</span>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="queryType" id="queryTypeBoth" value="BOTH">
+                                <label class="form-check-label" for="queryTypeBoth">
+                                    <span data-i18n="configuration.queryTypeBoth">Both A and AAAA Records</span>
+                                </label>
+                            </div>
+                            <small class="form-text text-muted" data-i18n="configuration.queryTypeHelp">
+                                This setting applies to DoH, DoT, and DoQ protocols. IPv4/IPv6 protocol selections above will always use their respective record types.
+                            </small>
+                        </div>
 
                         <div class="d-grid gap-2">
                             <button type="button" class="btn btn-success" id="startTest">

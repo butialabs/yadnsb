@@ -15,6 +15,11 @@
         "testInterval": "요청 간 간격 (초)",
         "testCount": "공급자당 테스트 횟수",
         "protocolTypes": "DNS 프로토콜 유형",
+        "queryType": "DoH/DoT/DoQ 쿼리 유형",
+        "queryTypeA": "A 레코드 (IPv4 주소)",
+        "queryTypeAAAA": "AAAA 레코드 (IPv6 주소)",
+        "queryTypeBoth": "A 및 AAAA 레코드 모두",
+        "queryTypeHelp": "이 설정은 DoH, DoT, DoQ 프로토콜에 적용됩니다. 위의 IPv4/IPv6 프로토콜 선택은 항상 각각의 레코드 유형을 사용합니다.",
         "startTest": "벤치마크 시작",
         "stopTest": "테스트 중지"
     },

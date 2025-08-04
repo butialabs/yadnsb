@@ -63,18 +63,21 @@ app.post('/api/test', async (req, res) => {
                 result = await dnsResolver.resolveIPv6(domain, server);
                 break;
             case 'DoH':
-                result = await dohResolver.resolve(domain, server, 'A');
+                const dohType = req.body.queryType || 'A';
+                result = await dohResolver.resolve(domain, server, dohType);
                 break;
             case 'DoT':
-                result = await dotResolver.resolve(domain, server, 'A');
+                const dotType = req.body.queryType || 'A';
+                result = await dotResolver.resolve(domain, server, dotType);
                 break;
             case 'DoQ':
-                result = await doqResolver.resolve(domain, server, 'A');
+                const doqType = req.body.queryType || 'A';
+                result = await doqResolver.resolve(domain, server, doqType);
                 break;
             default:
-                return res.status(400).json({ 
-                    success: false, 
-                    error: `Unsupported DNS type: ${server.type}` 
+                return res.status(400).json({
+                    success: false,
+                    error: `Unsupported DNS type: ${server.type}`
                 });
         }
 
@@ -182,13 +185,16 @@ async function handleTestRequest(ws, config) {
                                     result = await dnsResolver.resolveIPv6(domain, server);
                                     break;
                                 case 'DoH':
-                                    result = await dohResolver.resolve(domain, server, 'A');
+                                    const dohQueryType = config.queryType || 'A';
+                                    result = await dohResolver.resolve(domain, server, dohQueryType);
                                     break;
                                 case 'DoT':
-                                    result = await dotResolver.resolve(domain, server, 'A');
+                                    const dotQueryType = config.queryType || 'A';
+                                    result = await dotResolver.resolve(domain, server, dotQueryType);
                                     break;
                                 case 'DoQ':
-                                    result = await doqResolver.resolve(domain, server, 'A');
+                                    const doqQueryType = config.queryType || 'A';
+                                    result = await doqResolver.resolve(domain, server, doqQueryType);
                                     break;
                                 default:
                                     result = {

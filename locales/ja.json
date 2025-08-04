@@ -15,6 +15,11 @@
         "testInterval": "リクエスト間隔（秒）",
         "testCount": "プロバイダーごとのテスト数",
         "protocolTypes": "DNSプロトコルタイプ",
+        "queryType": "DoH/DoT/DoQのクエリタイプ",
+        "queryTypeA": "Aレコード（IPv4アドレス）",
+        "queryTypeAAAA": "AAAAレコード（IPv6アドレス）",
+        "queryTypeBoth": "AレコードとAAAAレコードの両方",
+        "queryTypeHelp": "この設定はDoH、DoT、DoQプロトコルに適用されます。上記のIPv4/IPv6プロトコル選択は常にそれぞれのレコードタイプを使用します。",
         "startTest": "ベンチマーク開始",
         "stopTest": "テスト停止"
     },

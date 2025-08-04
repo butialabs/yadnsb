@@ -568,6 +568,7 @@ class YADNSBApp {
         const testInterval = parseFloat(document.getElementById('testInterval').value);
         const testCount = parseInt(document.getElementById('testCount').value);
         const selectedProtocols = this.getSelectedProtocols();
+        const queryType = document.querySelector('input[name="queryType"]:checked')?.value || 'A';
 
         return {
             selectedProviders: this.selectedProviders,
@@ -576,7 +577,8 @@ class YADNSBApp {
             selectedPresetDomains,
             customDomains,
             testInterval,
-            testCount
+            testCount,
+            queryType
         };
     }
 

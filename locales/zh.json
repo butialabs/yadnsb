@@ -15,6 +15,11 @@
         "testInterval": "请求间隔（秒）",
         "testCount": "每个提供商的测试次数",
         "protocolTypes": "DNS协议类型",
+        "queryType": "DoH/DoT/DoQ的查询类型",
+        "queryTypeA": "A记录（IPv4地址）",
+        "queryTypeAAAA": "AAAA记录（IPv6地址）",
+        "queryTypeBoth": "A和AAAA记录",
+        "queryTypeHelp": "此设置适用于DoH、DoT和DoQ协议。上面的IPv4/IPv6协议选择将始终使用其各自的记录类型。",
         "startTest": "开始基准测试",
         "stopTest": "停止测试"
     },

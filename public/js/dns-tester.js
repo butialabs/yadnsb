@@ -43,20 +43,41 @@ class DNSTester {
             provider.servers.forEach(server => {
                 if (config.selectedProtocols.includes(server.type)) {
                     domains.forEach(domain => {
-                        for (let i = 0; i < config.testCount; i++) {
-                            queue.push({
-                                provider: provider.name,
-                                server: { ...server, name: provider.name },
-                                domain: domain,
-                                iteration: i + 1
-                            });
-                        }
+                        const queryTypes = this.getQueryTypesForServer(server, config.queryType);
+                        
+                        queryTypes.forEach(queryType => {
+                            for (let i = 0; i < config.testCount; i++) {
+                                queue.push({
+                                    provider: provider.name,
+                                    server: { ...server, name: provider.name },
+                                    domain: domain,
+                                    iteration: i + 1,
+                                    queryType: queryType
+                                });
+                            }
+                        });
                     });
                 }
             });
         });
 
         return this.shuffleArray(queue);
+    }
+
+    getQueryTypesForServer(server, configQueryType) {
+        if (server.type === 'IPv4') return ['A'];
+        if (server.type === 'IPv6') return ['AAAA'];
+        
+        if (['DoH', 'DoT', 'DoQ'].includes(server.type)) {
+            switch (configQueryType) {
+                case 'A': return ['A'];
+                case 'AAAA': return ['AAAA'];
+                case 'BOTH': return ['A', 'AAAA'];
+                default: return ['A'];
+            }
+        }
+        
+        return ['A'];
     }
 
     getTestDomains(config) {
@@ -191,15 +212,21 @@ class DNSTester {
         const startTime = performance.now();
 
         try {
+            const requestBody = {
+                server: test.server,
+                domain: test.domain
+            };
+            
+            if (['DoH', 'DoT', 'DoQ'].includes(test.server.type) && test.queryType) {
+                requestBody.queryType = test.queryType;
+            }
+
             const response = await fetch('/api/test', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    server: test.server,
-                    domain: test.domain
-                })
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {

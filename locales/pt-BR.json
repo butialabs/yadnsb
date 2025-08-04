@@ -15,6 +15,11 @@
         "testInterval": "Intervalo entre requisições (segundos)",
         "testCount": "Número de testes por provedor",
         "protocolTypes": "Tipos de protocolo DNS",
+        "queryType": "Tipo de consulta para DoH/DoT/DoQ",
+        "queryTypeA": "Registros A (endereços IPv4)",
+        "queryTypeAAAA": "Registros AAAA (endereços IPv6)",
+        "queryTypeBoth": "Ambos registros A e AAAA",
+        "queryTypeHelp": "Esta configuração se aplica aos protocolos DoH, DoT e DoQ. As seleções de protocolo IPv4/IPv6 acima sempre usarão seus respectivos tipos de registro.",
         "startTest": "Iniciar Teste",
         "stopTest": "Parar Teste"
     },

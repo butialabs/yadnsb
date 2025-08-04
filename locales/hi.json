@@ -15,6 +15,11 @@
         "testInterval": "अनुरोधों के बीच अंतराल (सेकंड)",
         "testCount": "प्रति प्रदाता टेस्ट की संख्या",
         "protocolTypes": "DNS प्रोटोकॉल प्रकार",
+        "queryType": "DoH/DoT/DoQ के लिए क्वेरी प्रकार",
+        "queryTypeA": "A रिकॉर्ड (IPv4 पते)",
+        "queryTypeAAAA": "AAAA रिकॉर्ड (IPv6 पते)",
+        "queryTypeBoth": "A और AAAA दोनों रिकॉर्ड",
+        "queryTypeHelp": "यह सेटिंग DoH, DoT, और DoQ प्रोटोकॉल पर लागू होती है। ऊपर IPv4/IPv6 प्रोटोकॉल चयन हमेशा अपने संबंधित रिकॉर्ड प्रकारों का उपयोग करेंगे।",
         "startTest": "बेंचमार्क शुरू करें",
         "stopTest": "टेस्ट रोकें"
     },
