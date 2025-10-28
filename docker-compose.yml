@@ -1,6 +1,6 @@
 services:
   yadnsb:
-    image: ghcr.io/altendorfme/yadnsb:latest
+    image: ghcr.io/butialabs/yadnsb:latest
     ports:
       - 3000:3000
     environment:
