@@ -1,15 +1,15 @@
 # YaDNSb - Yet Another DNS Benchmark
 
-[![Forks](https://img.shields.io/github/forks/altendorfme/yadnsb)](https://github.com/altendorfme/yadnsb/network/members)
-[![Stars](https://img.shields.io/github/stars/altendorfme/yadnsb)](https://github.com/altendorfme/yadnsb/stargazers)
-[![Issues](https://img.shields.io/github/issues/altendorfme/yadnsb)](https://github.com/altendorfme/yadnsb/issues)
+[![Forks](https://img.shields.io/github/forks/butialabs/yadnsb)](https://github.com/butialabs/yadnsb/network/members)
+[![Stars](https://img.shields.io/github/stars/butialabs/yadnsb)](https://github.com/butialabs/yadnsb/stargazers)
+[![Issues](https://img.shields.io/github/issues/butialabs/yadnsb)](https://github.com/butialabs/yadnsb/issues)
 
 A DNS performance testing IPv4, IPv6, DNS over HTTPS (DoH), DNS over TLS (DoT), and DNS over QUIC (DoQ).
 
 **Public Instance:**
 - https://yadnsb.butialabs.com (Thanks [Shiper.app](https://shiper.app/) for free upgrade!)
 
-[![Get it on Shiper](https://shiper.app/button.svg)](https://shiper.app/deploy?displayName=yadnsb&framework=node&repository=altendorfme/yadnsb&port=3000&basePath=/&maxPreviewDeployments=1&buildParameters={%22nodeVersion%22:%2222.16.0%22,%22packageManager%22:%22auto%22,%22runScript%22:%22start%22,%22buildScript%22:%22build%22})
+[![Get it on Shiper](https://shiper.app/button.svg)](https://shiper.app/deploy?displayName=yadnsb&framework=node&repository=butialabs/yadnsb&port=3000&basePath=/&maxPreviewDeployments=1&buildParameters={%22nodeVersion%22:%2222.16.0%22,%22packageManager%22:%22auto%22,%22runScript%22:%22start%22,%22buildScript%22:%22build%22})
 
 ## Installation
 
@@ -20,13 +20,13 @@ docker run -d \
   --name yadnsb \
   -p 3000:3000 \
   --restart unless-stopped \
-  ghcr.io/altendorfme/yadnsb:latest
+  ghcr.io/butialabs/yadnsb:latest
 ```
 
 ```bash
 services:
   yadnsb:
-    image: ghcr.io/altendorfme/yadnsb:latest
+    image: ghcr.io/butialabs/yadnsb:latest
     container_name: yadnsb
     restart: always
     mem_limit: 256m
@@ -166,7 +166,7 @@ npm run dev
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=altendorfme/yadnsb&type=Date)](https://star-history.com/#altendorfme/yadnsb&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=butialabs/yadnsb&type=Date)](https://star-history.com/#butialabs/yadnsb&Date)
 
 ---
 
