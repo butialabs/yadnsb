@@ -7,7 +7,7 @@
 A DNS performance testing IPv4, IPv6, DNS over HTTPS (DoH), DNS over TLS (DoT), and DNS over QUIC (DoQ).
 
 **Public Instance:**
-- https://yadnsb.altendorfme.com (Thanks [Shiper.app](https://shiper.app/) for free upgrade!)
+- https://yadnsb.butialabs.com (Thanks [Shiper.app](https://shiper.app/) for free upgrade!)
 
 [![Get it on Shiper](https://shiper.app/button.svg)](https://shiper.app/deploy?displayName=yadnsb&framework=node&repository=altendorfme/yadnsb&port=3000&basePath=/&maxPreviewDeployments=1&buildParameters={%22nodeVersion%22:%2222.16.0%22,%22packageManager%22:%22auto%22,%22runScript%22:%22start%22,%22buildScript%22:%22build%22})
 
