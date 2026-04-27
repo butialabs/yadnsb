@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:22-slim
 
 WORKDIR /app
 
@@ -8,8 +8,8 @@ RUN npm ci --only=production && npm cache clean --force
 
 COPY . .
 
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+RUN groupadd -g 1001 nodejs && \
+    useradd -r -u 1001 -g nodejs nodejs
 
 RUN chown -R nodejs:nodejs /app
 USER nodejs
