@@ -143,8 +143,8 @@ class YADNSBApp {
 
         const i18n = window.i18n;
         const tableHtml = `
-            <div class="table-responsive">
-                <table class="table table-dark table-hover mb-0">
+            <div class="table-responsive m-0 p-0">
+                <table class="table table-dark mb-0 providers-table">
                     <thead>
                         <tr>
                             <th style="width: 50px;">
@@ -156,9 +156,7 @@ class YADNSBApp {
                             <th>${i18n ? i18n.t('providers.port') : 'Port'}</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${this.generateTableRows(filteredProviders, selectedProtocols)}
-                    </tbody>
+                    ${this.generateTableRows(filteredProviders, selectedProtocols)}
                 </table>
             </div>
         `;
@@ -222,38 +220,40 @@ class YADNSBApp {
     }
 
     generateMainProviderRows(provider, selectedProtocols) {
-        let rows = '';
         const isMainSelected = this.selectedProviders.some(p => p.name === provider.name);
         const isExpanded = this.expandedGroups.has(provider.name);
         const folderIcon = isExpanded ? 'bi-folder2-open' : 'bi-folder2';
-        
-        rows += `
-            <tr class="${isMainSelected ? 'table-success' : ''}">
-                <td class="align-middle">
-                    <input class="form-check-input provider-checkbox"
-                           type="checkbox"
-                           id="provider-${provider.name.replace(/\s+/g, '-')}"
-                           data-provider="${provider.name}"
-                           data-is-main="true"
-                           ${isMainSelected ? 'checked' : ''}>
-                </td>
-                <td class="align-middle fw-bold">
-                    <div class="d-flex align-items-center">
-                        <i class="bi ${folderIcon} me-2 text-warning folder-toggle"
-                           style="cursor: pointer;"
-                           data-provider="${provider.name}"
-                           title="${isExpanded ? 'Collapse' : 'Expand'} group"></i>
-                        <span>${provider.name}</span>
-                        <small class="text-muted ms-2">(${provider.groups.length} ${window.i18n ? window.i18n.t('providers.groups') : 'groups'})</small>
-                    </div>
-                </td>
-                <td colspan="3" class="text-muted">
-                    ${window.i18n ? window.i18n.t('providers.selectAllGroups') : 'Select to test all groups'}
-                </td>
-            </tr>
+
+        let bodies = '';
+
+        bodies += `
+            <tbody class="provider-block${isMainSelected ? ' is-selected' : ''}">
+                <tr>
+                    <td class="align-middle">
+                        <input class="form-check-input provider-checkbox"
+                               type="checkbox"
+                               id="provider-${provider.name.replace(/\s+/g, '-')}"
+                               data-provider="${provider.name}"
+                               data-is-main="true"
+                               ${isMainSelected ? 'checked' : ''}>
+                    </td>
+                    <td class="align-middle fw-bold">
+                        <div class="d-flex align-items-center">
+                            <i class="bi ${folderIcon} me-2 text-warning folder-toggle"
+                               style="cursor: pointer;"
+                               data-provider="${provider.name}"
+                               title="${isExpanded ? 'Collapse' : 'Expand'} group"></i>
+                            <span>${provider.name}</span>
+                            <small class="text-muted ms-2">(${provider.groups.length} ${window.i18n ? window.i18n.t('providers.groups') : 'groups'})</small>
+                        </div>
+                    </td>
+                    <td colspan="3" class="text-muted">
+                        ${window.i18n ? window.i18n.t('providers.selectAllGroups') : 'Select to test all groups'}
+                    </td>
+                </tr>
+            </tbody>
         `;
 
-        // Only show groups if expanded
         if (isExpanded) {
             provider.groups.forEach(group => {
                 const filteredServers = group.servers.filter(server =>
@@ -264,12 +264,13 @@ class YADNSBApp {
 
                 const isGroupSelected = this.selectedProviders.some(p => p.name === group.name);
 
+                let groupRows = '';
                 filteredServers.forEach((server, index) => {
                     const isFirstRow = index === 0;
                     const rowspan = isFirstRow ? filteredServers.length : 0;
 
-                    rows += `
-                        <tr class="${isGroupSelected ? 'table-success' : ''} group-row" data-parent="${provider.name}">
+                    groupRows += `
+                        <tr class="group-row" data-parent="${provider.name}">
                             ${isFirstRow ? `
                                 <td rowspan="${rowspan}" class="align-middle ps-4">
                                     <input class="form-check-input group-checkbox"
@@ -294,26 +295,32 @@ class YADNSBApp {
                         </tr>
                     `;
                 });
+
+                bodies += `
+                    <tbody class="provider-block${isGroupSelected ? ' is-selected' : ''}">
+                        ${groupRows}
+                    </tbody>
+                `;
             });
         }
 
-        return rows;
+        return bodies;
     }
 
     generateSimpleProviderRows(provider, selectedProtocols) {
-        let rows = '';
         const filteredServers = provider.servers.filter(server =>
             selectedProtocols.includes(server.type)
         );
 
         const isSelected = this.selectedProviders.some(p => p.name === provider.name);
 
+        let rows = '';
         filteredServers.forEach((server, index) => {
             const isFirstRow = index === 0;
             const rowspan = isFirstRow ? filteredServers.length : 0;
 
             rows += `
-                <tr class="${isSelected ? 'table-success' : ''}">
+                <tr>
                     ${isFirstRow ? `
                         <td rowspan="${rowspan}" class="align-middle">
                             <input class="form-check-input provider-checkbox"
@@ -351,7 +358,7 @@ class YADNSBApp {
             `;
         });
 
-        return rows;
+        return `<tbody class="provider-block${isSelected ? ' is-selected' : ''}">${rows}</tbody>`;
     }
 
     getProtocolColor(protocol) {
@@ -527,6 +534,12 @@ class YADNSBApp {
                 btn.appendChild(span);
             }
         });
+
+        const chip = document.getElementById('selectedProvidersChip');
+        if (chip) {
+            chip.textContent = count;
+            chip.classList.toggle('is-empty', count === 0);
+        }
     }
 
     async startTest() {
@@ -622,6 +635,9 @@ class YADNSBApp {
             startBtn.classList.remove('d-none');
             stopBtn.classList.add('d-none');
         }
+
+        const navbar = document.querySelector('.navbar');
+        if (navbar) navbar.classList.toggle('is-testing', this.isTestRunning);
 
         const configInputs = document.querySelectorAll('#testInterval, #testCount, #customDomains, #presetDomains, .protocol-filter, .provider-checkbox');
         configInputs.forEach(input => {

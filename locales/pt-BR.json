@@ -12,6 +12,7 @@
         "testDomains": "Domínios de teste",
         "usePresetDomains": "Usar domínios predefinidos",
         "customDomains": "Digite domínios personalizados (um por linha)",
+        "customDomainsLabel": "Domínios personalizados",
         "testInterval": "Intervalo entre requisições (segundos)",
         "testCount": "Número de testes por provedor",
         "protocolTypes": "Tipos de protocolo DNS",

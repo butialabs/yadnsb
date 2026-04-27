@@ -12,6 +12,7 @@
         "testDomains": "テストドメイン",
         "usePresetDomains": "プリセットドメインを使用",
         "customDomains": "カスタムドメインを入力（1行に1つ）",
+        "customDomainsLabel": "カスタムドメイン",
         "testInterval": "リクエスト間隔（秒）",
         "testCount": "プロバイダーごとのテスト数",
         "protocolTypes": "DNSプロトコルタイプ",

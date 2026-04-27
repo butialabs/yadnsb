@@ -12,6 +12,7 @@
         "testDomains": "Test Domains",
         "usePresetDomains": "Use preset domains",
         "customDomains": "Enter custom domains (one per line)",
+        "customDomainsLabel": "Custom domains",
         "testInterval": "Interval between requests (seconds)",
         "testCount": "Number of tests per provider",
         "protocolTypes": "DNS Protocol Types",

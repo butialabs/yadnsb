@@ -12,6 +12,7 @@
         "testDomains": "테스트 도메인",
         "usePresetDomains": "사전 설정된 도메인 사용",
         "customDomains": "사용자 정의 도메인 입력 (한 줄에 하나씩)",
+        "customDomainsLabel": "사용자 정의 도메인",
         "testInterval": "요청 간 간격 (초)",
         "testCount": "공급자당 테스트 횟수",
         "protocolTypes": "DNS 프로토콜 유형",

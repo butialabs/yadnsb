@@ -12,6 +12,7 @@
         "testDomains": "Testdomänen",
         "usePresetDomains": "Vordefinierte Domänen verwenden",
         "customDomains": "Benutzerdefinierte Domänen eingeben (eine pro Zeile)",
+        "customDomainsLabel": "Benutzerdefinierte Domänen",
         "testInterval": "Intervall zwischen Anfragen (Sekunden)",
         "testCount": "Anzahl der Tests pro Anbieter",
         "protocolTypes": "DNS-Protokolltypen",

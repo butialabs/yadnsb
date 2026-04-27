@@ -12,6 +12,7 @@
         "testDomains": "测试域名",
         "usePresetDomains": "使用预设域名",
         "customDomains": "输入自定义域名（每行一个）",
+        "customDomainsLabel": "自定义域名",
         "testInterval": "请求间隔（秒）",
         "testCount": "每个提供商的测试次数",
         "protocolTypes": "DNS协议类型",

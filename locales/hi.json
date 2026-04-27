@@ -12,6 +12,7 @@
         "testDomains": "टेस्ट डोमेन",
         "usePresetDomains": "प्रीसेट डोमेन का उपयोग करें",
         "customDomains": "कस्टम डोमेन दर्ज करें (प्रति पंक्ति एक)",
+        "customDomainsLabel": "कस्टम डोमेन",
         "testInterval": "अनुरोधों के बीच अंतराल (सेकंड)",
         "testCount": "प्रति प्रदाता टेस्ट की संख्या",
         "protocolTypes": "DNS प्रोटोकॉल प्रकार",
