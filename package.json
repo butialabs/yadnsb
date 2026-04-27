@@ -27,6 +27,7 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
+        "@matrixai/quic": "^2.0.9",
         "dns2": "^2.1.0",
         "dohjs": "^0.3.3",
         "express": "^5.1.0",
