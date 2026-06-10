@@ -20,14 +20,45 @@ const wss = new WebSocketServer({ server });
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public', { index: false }));
 
 const dnsResolver = new DNSResolver();
 const dohResolver = new DoHResolver();
 const dotResolver = new DoTResolver();
 const doqResolver = new DoQResolver();
 
+let cachedHtml = null;
+
+async function loadAnalyticsHtml() {
+    const snippet = process.env.ANALYTICS_SCRIPT;
+    if (!snippet) return;
+
+    try {
+        const filePath = path.join(__dirname, 'public', 'index.html');
+        let html = await fs.readFile(filePath, 'utf8');
+
+        if (html.includes('</head>')) {
+            html = html.replace('</head>', `${snippet}\n</head>`);
+        } else if (html.includes('</html>')) {
+            console.warn('[analytics] </head> not found, injecting before </html>');
+            html = html.replace('</html>', `${snippet}\n</html>`);
+        } else {
+            console.warn('[analytics] No </head> or </html> found, appending to document');
+            html = html + '\n' + snippet;
+        }
+
+        cachedHtml = html;
+        console.log('[analytics] Custom analytics script injected');
+    } catch (err) {
+        console.warn('[analytics] Failed to read index.html for injection:', err.message);
+    }
+}
+
 app.get('/', (req, res) => {
+    if (cachedHtml) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.send(cachedHtml);
+    }
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -268,23 +299,27 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-server.listen(PORT, () => {
-    console.log(`YADNSB server running on port ${PORT}`);
-    console.log(`Open http://localhost:${PORT}`);
-});
+(async () => {
+    await loadAnalyticsHtml();
 
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received, shutting down gracefully');
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
+    server.listen(PORT, () => {
+        console.log(`YADNSB server running on port ${PORT}`);
+        console.log(`Open http://localhost:${PORT}`);
     });
-});
 
-process.on('SIGINT', () => {
-    console.log('SIGINT received, shutting down gracefully');
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM received, shutting down gracefully');
+        server.close(() => {
+            console.log('Server closed');
+            process.exit(0);
+        });
     });
-});
+
+    process.on('SIGINT', () => {
+        console.log('SIGINT received, shutting down gracefully');
+        server.close(() => {
+            console.log('Server closed');
+            process.exit(0);
+        });
+    });
+})();
