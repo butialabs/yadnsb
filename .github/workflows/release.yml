@@ -1,5 +1,5 @@
 name: 🛠️ Main
-run-name: 🚀 Version deployment
+run-name: 🚀 Deployment
 
 on:
   push:
@@ -9,30 +9,86 @@ on:
 env:
   DOCKER_REGISTRY: ghcr.io
   DOCKER_IMAGE_NAME: ${{ github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  php-lint:
+    name: 🔍 PHP syntax check
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: 🐘 Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+
+      - name: 🔍 Validate PHP syntax
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            FILES=$(git ls-files | grep '\.php$' || true)
+          else
+            FILES=$(git diff --name-only --diff-filter=d "$PREVIOUS_TAG"..HEAD | grep '\.php$' || true)
+          fi
+          if [ -z "$FILES" ]; then
+            echo "No PHP files changed since last tag."
+            exit 0
+          fi
+          echo "$FILES" | xargs -P4 -I{} php -l {}
+
+  setup:
+    name: 🔍 Extract version
+    runs-on: ubuntu-24.04
+    needs: [php-lint]
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      prerelease: ${{ steps.get_version.outputs.PRERELEASE }}
+    steps:
+      - name: 🏷️ Extract version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          if [[ "$VERSION" == *"-"* ]]; then
+            echo "PRERELEASE=true" >> $GITHUB_OUTPUT
+          else
+            echo "PRERELEASE=false" >> $GITHUB_OUTPUT
+          fi
+
   docker-build:
-    name: 🐳 Build and Push
-    runs-on: ubuntu-latest
+    name: 🐳 Build and push (${{ matrix.cache_scope }})
+    runs-on: ${{ matrix.runner }}
+    needs: [setup]
     permissions:
       contents: read
       packages: write
-    
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+            suffix: -amd64
+            cache_scope: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            suffix: -arm64
+            cache_scope: arm64
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🏷️ Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: 🔧 Setup QEMU
+      - name: 🔧 Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: 🛠️ Setup Docker Buildx
+      - name: 🛠️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       - name: 📋 Extract Docker metadata
         id: meta
@@ -43,45 +99,132 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+            type=raw,value=latest,enable=${{ needs.setup.outputs.prerelease == 'false' }}
+          flavor: |
+            suffix=${{ matrix.suffix }}
 
-      - name: 🔐 Login to Registry
+      - name: 🔐 Log in to GitHub Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🏗️ Build and Push
-        uses: docker/build-push-action@v5
+      - name: 🏗️ Build and push (${{ matrix.cache_scope }})
+        uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: ${{ matrix.platform }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.cache_scope }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.cache_scope }}
 
-  publish-release:
-    name: 📦 Publish Release
-    runs-on: ubuntu-latest
-    needs: docker-build
+  docker-manifest:
+    name: 🔗 Multi-platform manifest
+    runs-on: ubuntu-24.04
+    needs: [setup, docker-build]
     permissions:
-      contents: write
-    
+      contents: read
+      packages: write
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🏷️ Extract version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: 📝 Create Release
-        uses: softprops/action-gh-release@v1
+      - name: 📋 Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          name: "🎉 Release v${{ steps.get_version.outputs.VERSION }}"
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          generate_release_notes: true
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable=${{ needs.setup.outputs.prerelease == 'false' }}
+
+      - name: 🔐 Log in to GitHub Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔗 Create and push multi-platform manifest
+        run: |
+          TAGS="${{ steps.meta.outputs.tags }}"
+          for tag in $TAGS; do
+            echo "Creating manifest for $tag"
+            docker buildx imagetools create \
+              --tag $tag \
+              $tag-amd64 \
+              $tag-arm64
+          done
+
+  publish-release:
+    name: 📦 Publish release
+    runs-on: ubuntu-24.04
+    needs: [setup, docker-build, docker-manifest]
+    permissions:
+      contents: write
+      models: read
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📋 Get commits since last tag
+        id: commits
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            LOG=$(git log --pretty=format:"%s (%h)" HEAD)
+          else
+            LOG=$(git log --pretty=format:"%s (%h)" "$PREVIOUS_TAG"..HEAD)
+          fi
+          echo "LOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$LOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🤖 Generate release notes
+        id: ai_notes
+        run: |
+          RESPONSE=$(curl -s https://models.inference.ai.azure.com/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg version "${{ needs.setup.outputs.version }}" \
+              --arg log "${{ steps.commits.outputs.LOG }}" \
+              '{
+                model: "gpt-4o-mini",
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are a technical writer for open source projects. Generate polished, friendly release notes in English from a list of git commits. Group changes into sections using these emojis: 🚀 New Features, 🐛 Bug Fixes, ⚡ Improvements, 💥 Breaking Changes. Omit sections with no entries. Be concise and developer-friendly. Do not include a title or version header."
+                  },
+                  {
+                    role: "user",
+                    content: ("Generate release notes for version " + $version + " from these commits:\n" + $log)
+                  }
+                ]
+              }')"
+          )
+          NOTES=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "Release notes unavailable."')
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 📝 Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "🎉 v${{ needs.setup.outputs.version }}"
+          tag_name: ${{ needs.setup.outputs.version }}
+          body: ${{ steps.ai_notes.outputs.NOTES }}
           draft: false
-          prerelease: false
+          prerelease: ${{ needs.setup.outputs.prerelease }}
