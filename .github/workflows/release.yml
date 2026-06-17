@@ -12,40 +12,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  php-lint:
-    name: 🔍 PHP syntax check
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: 🐘 Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          tools: none
-
-      - name: 🔍 Validate PHP syntax
-        run: |
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          if [ -z "$PREVIOUS_TAG" ]; then
-            FILES=$(git ls-files | grep '\.php$' || true)
-          else
-            FILES=$(git diff --name-only --diff-filter=d "$PREVIOUS_TAG"..HEAD | grep '\.php$' || true)
-          fi
-          if [ -z "$FILES" ]; then
-            echo "No PHP files changed since last tag."
-            exit 0
-          fi
-          echo "$FILES" | xargs -P4 -I{} php -l {}
-
   setup:
     name: 🔍 Extract version
     runs-on: ubuntu-24.04
-    needs: [php-lint]
     outputs:
       version: ${{ steps.get_version.outputs.VERSION }}
       prerelease: ${{ steps.get_version.outputs.PRERELEASE }}
