@@ -1,0 +1,61 @@
+name: 🧪 Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Run test suite on Node.js ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Check IPv6 connectivity
+        run: |
+          echo "=== IPv6 interfaces ==="
+          ip -6 addr show || true
+          echo "=== IPv6 route ==="
+          ip -6 route show || true
+          echo "=== IPv6 DNS probe ==="
+          node -e "
+            const dgram = require('dgram');
+            const msg = Buffer.from([0x00,0x00,0x01,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x07,0x65,0x78,0x61,0x6d,0x70,0x6c,0x65,0x03,0x63,0x6f,0x6d,0x00,0x00,0x1c,0x00,0x01]);
+            const s = dgram.createSocket('udp6');
+            s.on('message', (m) => { console.log('IPv6 UDP response received, bytes:', m.length); s.close(); });
+            s.on('error', (e) => { console.error('IPv6 UDP error:', e.message); s.close(); });
+            s.send(msg, 53, '2001:4860:4860::8888', (e) => {
+              if (e) { console.error('IPv6 UDP send error:', e.message); s.close(); }
+              else console.log('IPv6 UDP query sent');
+            });
+            setTimeout(() => { console.log('IPv6 UDP probe timeout'); s.close(); }, 5000);
+          " || true
+
+      - name: 🧪 Run tests
+        run: npm test
+        timeout-minutes: 5
+
+      - name: 🏥 Health check server
+        run: |
+          npm start &
+          SERVER_PID=$!
+          sleep 2
+          curl -fsS http://localhost:3000/api/health || true
+          curl -fsS http://localhost:3000/api/providers > /dev/null || true
+          kill $SERVER_PID || true
